@@ -1,115 +1,105 @@
 package com.curso.whatsappclone.activity;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.curso.whatsappclone.R;
-import com.curso.whatsappclone.services.MaskService;
-import com.curso.whatsappclone.services.PermissionService;
-import com.curso.whatsappclone.services.PreferenceService;
-
-import java.util.Random;
+import com.curso.whatsappclone.config.FirebaseConfig;
+import com.curso.whatsappclone.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class LoginActivity extends AppCompatActivity {
 
-    EditText textName;
-    EditText textCellNumber;
-    Button btnRegister;
+    EditText textEmail;
+    EditText textPassword;
+    Button btnLogin;
+
+    User user;
+    FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        textName = (EditText) findViewById(R.id.textEmail);
-        textCellNumber = (EditText) findViewById(R.id.textPassword);
-        btnRegister = (Button) findViewById(R.id.btnLogin);
+        verifyUserAuth();
+
+        textEmail = (EditText) findViewById(R.id.textEmail);
+        textPassword = (EditText) findViewById(R.id.textPassword);
+        btnLogin = (Button) findViewById(R.id.btnLogin);
+
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                user = new User(
+                    textEmail.getText().toString(),
+                    textPassword.getText().toString()
+                );
+
+                loginValidate();
+            }
+        });
+    }
+
+    private void loginValidate() {
+        auth = FirebaseConfig.getFirebaseAuth();
+
+        auth.signInWithEmailAndPassword(user.getEmail(), user.getPassword())
+            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        openHome();
+                        Toast.makeText(LoginActivity.this, "Sucesso ao efetuar o login", Toast.LENGTH_LONG).show();
+                    } else {
+
+                        String exception = "Ao efetuar o login";
+
+                        try {
+                            throw task.getException();
+                        } catch (FirebaseAuthInvalidUserException e) {
+                            exception = "E-mail incorreto";
+                        } catch (FirebaseAuthInvalidCredentialsException e) {
+                            exception = "Senha incorreta";
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        Toast.makeText(LoginActivity.this, "Erro: " + exception, Toast.LENGTH_LONG).show();
+
+                    }
+                }
+            });
+    }
+
+    private void verifyUserAuth() {
+        auth = FirebaseConfig.getFirebaseAuth();
+
+        if (auth.getCurrentUser() != null) {
+            openHome();
+        }
+    }
+
+    private void openHome() {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     public void toRegister(View v) {
             Intent intent = new Intent(LoginActivity.this, UserRegisterActivity.class);
             startActivity(intent);
-            finish();
-    }
-
-    private void userRegister() {
-        String name = textName.getText().toString();
-        String number = "55" + textCellNumber.getText().toString();
-        number = number
-                .replace("(", "")
-                .replace(")", "")
-                .replace("-", "")
-                .replace(" ", "");
-
-        String token = generateToken().toString();
-
-        PreferenceService preferenceService = new PreferenceService(LoginActivity.this);
-        preferenceService.saveUserPreferences(name, number, token);
-
-        boolean enviadoSMS = smsSender("+" + number, "Whatsapp Clone Codigo de confirmação: " + token);
-
-        if (enviadoSMS) {
-//            Intent intent = new Intent(LoginActivity.this, RegistrationValidatorActivity.class);
-//            startActivity(intent);
-//            finish();
-        } else {
-            Toast.makeText(LoginActivity.this, "Problema ao mandar SMS, tente novamente", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private Integer generateToken() {
-        Random random = new Random();
-        return random.nextInt(9999 - 1000) + 1000;
-    }
-
-    private boolean smsSender(String cellNumber, String message) {
-        try {
-
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(cellNumber, null, message, null, null);
-
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        for (int result: grantResults) {
-            if (result == PackageManager.PERMISSION_GRANTED) {
-                alertPermission();
-            }
-        }
-    }
-
-    public void alertPermission() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setTitle("Permissão Negada");
-        builder.setMessage("Para esse app funcionar é necessário aceitar as permissões.");
-
-        builder.setPositiveButton("CONFIRMAR", new DialogInterface.OnClickListener() {
-            @Override
-            public void  onClick(DialogInterface dialog, int which) {
-                finish();
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 }
