@@ -58,6 +58,7 @@
         android:foregroundGravity="center_vertical|center_horizontal"
         android:text="Logar"
         android:textColor="@color/textColorPrimary"
+        android:theme="@style/BtnPattern"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
