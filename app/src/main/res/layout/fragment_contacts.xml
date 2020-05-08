@@ -13,5 +13,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="CONTACTS"
+        android:textColor="@color/design_default_color_on_secondary"
         android:textSize="32sp" />
 </FrameLayout>
