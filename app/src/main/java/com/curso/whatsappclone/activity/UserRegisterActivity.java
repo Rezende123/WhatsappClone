@@ -3,6 +3,7 @@ package com.curso.whatsappclone.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import com.curso.whatsappclone.R;
 import com.curso.whatsappclone.config.FirebaseConfig;
 import com.curso.whatsappclone.model.User;
+import com.curso.whatsappclone.services.Base64Service;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -70,11 +72,13 @@ public class UserRegisterActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(UserRegisterActivity.this, "Sucesso ao cadastrar o usuário", Toast.LENGTH_LONG).show();
-                    user.setId(task.getResult().getUser().getUid());
+                    String email = task.getResult().getUser().getEmail();
+                    String userIdBase64 = Base64Service.code(email);
+
+                    user.setId(userIdBase64);
                     user.save();
 
-                    auth.signOut();
-                    finish();
+                    openHome();
                 } else {
 
                     String exception = "Ao cadastrar o usuário";
@@ -94,5 +98,11 @@ public class UserRegisterActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void openHome() {
+        Intent intent = new Intent(UserRegisterActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
