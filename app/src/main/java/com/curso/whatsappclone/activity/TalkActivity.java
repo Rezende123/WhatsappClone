@@ -82,7 +82,8 @@ public class TalkActivity extends AppCompatActivity {
                 } else {
                     Message message = new Message(idUserSender, textMessage);
 
-                    saveMessage(message);
+                    saveMessage(contact.getUserId(), idUserSender, message);
+                    saveMessage(idUserSender, contact.getUserId(), message);
 
                     editMessage.setText("");
                 }
@@ -96,10 +97,9 @@ public class TalkActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
-    private boolean saveMessage(Message message) {
+    private boolean saveMessage(String idUserReceiver, String idUserSender, Message message) {
         try {
             firebase = FirebaseConfig.getFirebase().child("messages");
-            String idUserReceiver = contact.getUserId();
 
             firebase.child(idUserSender).child(idUserReceiver).push().setValue(message);
 
