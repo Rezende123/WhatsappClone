@@ -70,17 +70,21 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-                        PreferenceService preferenceService = new PreferenceService(LoginActivity.this);
                         userId = Base64Service.code(user.getEmail());
 
-                        firebase = FirebaseConfig.getFirebase().child("users").child(userId);
+                        firebase = FirebaseConfig.getFirebase().child("user").child(userId);
 
                         valueEventListenerUser = new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                PreferenceService preferenceService = new PreferenceService(LoginActivity.this);
+                                if (dataSnapshot.getValue() != null) {
+                                    PreferenceService preferenceService = new PreferenceService(LoginActivity.this);
 
-                                preferenceService.saveUserPreferences(userId, dataSnapshot.getValue(User.class).getName());
+                                    preferenceService.saveUserPreferences(userId, dataSnapshot.getValue(User.class).getName());
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Falha ao salvar dados do usuário", Toast.LENGTH_LONG).show();
+                                }
+
                             }
 
                             @Override

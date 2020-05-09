@@ -112,7 +112,7 @@ public class TalkActivity extends AppCompatActivity {
                                         nameUserSender
                                 );
 
-                                isTalkSaved = saveTalk(idUserSender, contact.getUserId(), talk);
+                                isTalkSaved = saveTalk(contact.getUserId(), idUserSender, talk);
 
                                 if (!isTalkSaved) {
                                     Toast.makeText(TalkActivity.this, "Problema ao salvar a conversa, tente novamente", Toast.LENGTH_LONG).show();
