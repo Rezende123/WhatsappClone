@@ -12,9 +12,7 @@ public class PreferenceService {
     private SharedPreferences.Editor editor;
 
     private final String FILE_NAME = "WPP_CLONE_PREFERENCES";
-    private final String KEY_NAME = "Name";
-    private final String KEY_CELL_NUMBER = "CellNumber";
-    private final String KEY_TOKEN = "Token";
+    private final String KEY_NAME = "userId";
     private final int MODE = 0;
 
     public PreferenceService(Context context) {
@@ -24,21 +22,13 @@ public class PreferenceService {
         editor = sharedPreferences.edit();
     }
 
-    public void saveUserPreferences(String name, String cellNumber, String token) {
-        editor.putString(KEY_NAME, name);
-        editor.putString(KEY_CELL_NUMBER, cellNumber);
-        editor.putString(KEY_TOKEN, token);
+    public void saveUserPreferences(String userId) {
+        editor.putString(KEY_NAME, userId);
         editor.commit();
     }
 
-    public HashMap<String, String> getUserPreferences() {
-        HashMap<String, String> userPreferences = new HashMap<String, String>();
-
-        userPreferences.put(KEY_NAME, sharedPreferences.getString(KEY_NAME, null));
-        userPreferences.put(KEY_CELL_NUMBER, sharedPreferences.getString(KEY_CELL_NUMBER, null));
-        userPreferences.put(KEY_TOKEN, sharedPreferences.getString(KEY_TOKEN, null));
-
-        return userPreferences;
+    public String getUserId() {
+        return sharedPreferences.getString(KEY_NAME, null);
     }
 
     public void clearPreferences() {

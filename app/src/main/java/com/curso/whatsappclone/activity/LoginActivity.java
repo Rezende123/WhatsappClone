@@ -13,6 +13,8 @@ import android.widget.Toast;
 import com.curso.whatsappclone.R;
 import com.curso.whatsappclone.config.FirebaseConfig;
 import com.curso.whatsappclone.model.User;
+import com.curso.whatsappclone.services.Base64Service;
+import com.curso.whatsappclone.services.PreferenceService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -61,6 +63,10 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
+                        PreferenceService preferenceService = new PreferenceService(LoginActivity.this);
+                        String userId = Base64Service.code(user.getEmail());
+                        preferenceService.saveUserPreferences(userId);
+
                         openHome();
                         Toast.makeText(LoginActivity.this, "Sucesso ao efetuar o login", Toast.LENGTH_LONG).show();
                     } else {

@@ -14,6 +14,7 @@ import com.curso.whatsappclone.R;
 import com.curso.whatsappclone.config.FirebaseConfig;
 import com.curso.whatsappclone.model.User;
 import com.curso.whatsappclone.services.Base64Service;
+import com.curso.whatsappclone.services.PreferenceService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -74,6 +75,9 @@ public class UserRegisterActivity extends AppCompatActivity {
                     Toast.makeText(UserRegisterActivity.this, "Sucesso ao cadastrar o usuário", Toast.LENGTH_LONG).show();
                     String email = task.getResult().getUser().getEmail();
                     String userIdBase64 = Base64Service.code(email);
+
+                    PreferenceService preferenceService = new PreferenceService(UserRegisterActivity.this);
+                    preferenceService.saveUserPreferences(userIdBase64);
 
                     user.setId(userIdBase64);
                     user.save();
