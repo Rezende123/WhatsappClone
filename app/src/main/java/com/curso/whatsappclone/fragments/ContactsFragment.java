@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.curso.whatsappclone.R;
+import com.curso.whatsappclone.adapter.ContactAdapter;
 import com.curso.whatsappclone.config.FirebaseConfig;
 import com.curso.whatsappclone.model.Contact;
 import com.curso.whatsappclone.services.PreferenceService;
@@ -29,7 +30,7 @@ public class ContactsFragment extends Fragment {
 
     private ListView listView;
     private ArrayAdapter adapter;
-    private ArrayList<String> contacts;
+    private ArrayList<Contact> contacts;
     private ValueEventListener valueEventListenerContacts;
 
     private DatabaseReference firebase;
@@ -61,11 +62,7 @@ public class ContactsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
 
         listView = view.findViewById(R.id.lv_contacts);
-        adapter = new ArrayAdapter(
-                getActivity(),
-                R.layout.list_contact,
-                contacts
-        );
+        adapter = new ContactAdapter(getActivity(), contacts);
         listView.setAdapter(adapter);
 
         getContacts();
@@ -87,7 +84,7 @@ public class ContactsFragment extends Fragment {
 
                 for (DataSnapshot data: dataSnapshot.getChildren()) {
                     Contact contact = data.getValue(Contact.class);
-                    contacts.add(contact.getName());
+                    contacts.add(contact);
                 }
                 adapter.notifyDataSetChanged();
             }
