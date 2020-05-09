@@ -5,14 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".fragments.ContactsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="CONTACTS"
-        android:textColor="@color/design_default_color_on_secondary"
-        android:textSize="32sp" />
+    <ListView
+        android:id="@+id/lv_contacts"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal|top"/>
 </FrameLayout>
