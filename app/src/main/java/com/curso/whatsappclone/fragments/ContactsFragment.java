@@ -30,6 +30,7 @@ public class ContactsFragment extends Fragment {
     private ListView listView;
     private ArrayAdapter adapter;
     private ArrayList<String> contacts;
+    private ValueEventListener valueEventListenerContacts;
 
     private DatabaseReference firebase;
 
@@ -37,6 +38,19 @@ public class ContactsFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        firebase.addValueEventListener(valueEventListenerContacts);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        firebase.removeEventListener(valueEventListenerContacts);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,7 +80,7 @@ public class ContactsFragment extends Fragment {
         firebase = FirebaseConfig.getFirebase()
                 .child("contacts").child(userAuthId);
 
-        firebase.addValueEventListener(new ValueEventListener() {
+        valueEventListenerContacts = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 contacts.clear();
@@ -82,6 +96,6 @@ public class ContactsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
     }
 }
