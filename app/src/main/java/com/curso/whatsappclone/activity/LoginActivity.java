@@ -21,15 +21,22 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
     EditText textEmail;
     EditText textPassword;
     Button btnLogin;
+    String userId;
 
     User user;
     FirebaseAuth auth;
+    private DatabaseReference firebase;
+    private ValueEventListener valueEventListenerUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +71,25 @@ public class LoginActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
                         PreferenceService preferenceService = new PreferenceService(LoginActivity.this);
-                        String userId = Base64Service.code(user.getEmail());
-                        preferenceService.saveUserPreferences(userId);
+                        userId = Base64Service.code(user.getEmail());
+
+                        firebase = FirebaseConfig.getFirebase().child("users").child(userId);
+
+                        valueEventListenerUser = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                PreferenceService preferenceService = new PreferenceService(LoginActivity.this);
+
+                                preferenceService.saveUserPreferences(userId, dataSnapshot.getValue(User.class).getName());
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        };
+
+                        firebase.addListenerForSingleValueEvent(valueEventListenerUser);
 
                         openHome();
                         Toast.makeText(LoginActivity.this, "Sucesso ao efetuar o login", Toast.LENGTH_LONG).show();

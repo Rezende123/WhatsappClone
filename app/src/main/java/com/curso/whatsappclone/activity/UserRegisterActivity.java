@@ -77,7 +77,7 @@ public class UserRegisterActivity extends AppCompatActivity {
                     String userIdBase64 = Base64Service.code(email);
 
                     PreferenceService preferenceService = new PreferenceService(UserRegisterActivity.this);
-                    preferenceService.saveUserPreferences(userIdBase64);
+                    preferenceService.saveUserPreferences(userIdBase64, user.getName());
 
                     user.setId(userIdBase64);
                     user.save();

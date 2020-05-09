@@ -19,6 +19,7 @@ import com.curso.whatsappclone.adapter.MessageAdapter;
 import com.curso.whatsappclone.config.FirebaseConfig;
 import com.curso.whatsappclone.model.Contact;
 import com.curso.whatsappclone.model.Message;
+import com.curso.whatsappclone.model.Talk;
 import com.curso.whatsappclone.services.Base64Service;
 import com.curso.whatsappclone.services.PreferenceService;
 import com.google.firebase.database.DataSnapshot;
@@ -41,6 +42,7 @@ public class TalkActivity extends AppCompatActivity {
     private ImageButton sendMessage;
 
     private String idUserSender;
+    private String nameUserSender;
 
     private DatabaseReference firebase;
 
@@ -57,6 +59,7 @@ public class TalkActivity extends AppCompatActivity {
 
         PreferenceService preferenceService = new PreferenceService(TalkActivity.this);
         idUserSender = preferenceService.getUserId();
+        nameUserSender = preferenceService.getUserName();
 
         if (extras != null) {
             String userId = Base64Service.code(extras.getString("email"));
@@ -82,8 +85,42 @@ public class TalkActivity extends AppCompatActivity {
                 } else {
                     Message message = new Message(idUserSender, textMessage);
 
-                    saveMessage(contact.getUserId(), idUserSender, message);
-                    saveMessage(idUserSender, contact.getUserId(), message);
+                    boolean isSent = saveMessage(contact.getUserId(), idUserSender, message);
+
+                    if (!isSent) {
+                        Toast.makeText(TalkActivity.this, "Problema ao enviar a mensagem, tente novamente", Toast.LENGTH_LONG).show();
+                    } else {
+                        isSent = saveMessage(idUserSender, contact.getUserId(), message);
+
+                        if (!isSent) {
+                            Toast.makeText(TalkActivity.this, "Problema no recebimento da mensagem, tente novamente", Toast.LENGTH_LONG).show();
+                        } else {
+                            Talk talk = new Talk(
+                                    contact.getUserId(),
+                                    textMessage,
+                                    contact.getName()
+                            );
+
+                            boolean isTalkSaved = saveTalk(idUserSender, contact.getUserId(), talk);
+
+                            if (!isTalkSaved) {
+                                Toast.makeText(TalkActivity.this, "Problema ao salvar a conversa, tente novamente", Toast.LENGTH_LONG).show();
+                            } else {
+                                talk = new Talk(
+                                        idUserSender,
+                                        textMessage,
+                                        nameUserSender
+                                );
+
+                                isTalkSaved = saveTalk(idUserSender, contact.getUserId(), talk);
+
+                                if (!isTalkSaved) {
+                                    Toast.makeText(TalkActivity.this, "Problema ao salvar a conversa, tente novamente", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                    }
+
 
                     editMessage.setText("");
                 }
@@ -102,6 +139,19 @@ public class TalkActivity extends AppCompatActivity {
             firebase = FirebaseConfig.getFirebase().child("messages");
 
             firebase.child(idUserSender).child(idUserReceiver).push().setValue(message);
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean saveTalk(String idUserReceiver, String idUserSender, Talk talk) {
+        try {
+            firebase = FirebaseConfig.getFirebase().child("talks");
+
+            firebase.child(idUserSender).child(idUserReceiver).setValue(talk);
 
             return true;
         } catch (Exception e) {
