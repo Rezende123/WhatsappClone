@@ -96,9 +96,9 @@ public class TalkActivity extends AppCompatActivity {
                             Toast.makeText(TalkActivity.this, "Problema no recebimento da mensagem, tente novamente", Toast.LENGTH_LONG).show();
                         } else {
                             Talk talk = new Talk(
-                                    contact.getUserId(),
+                                    idUserSender,
                                     textMessage,
-                                    contact.getName()
+                                    nameUserSender
                             );
 
                             boolean isTalkSaved = saveTalk(idUserSender, contact.getUserId(), talk);
@@ -107,9 +107,9 @@ public class TalkActivity extends AppCompatActivity {
                                 Toast.makeText(TalkActivity.this, "Problema ao salvar a conversa, tente novamente", Toast.LENGTH_LONG).show();
                             } else {
                                 talk = new Talk(
-                                        idUserSender,
+                                        contact.getUserId(),
                                         textMessage,
-                                        nameUserSender
+                                        contact.getName()
                                 );
 
                                 isTalkSaved = saveTalk(contact.getUserId(), idUserSender, talk);
