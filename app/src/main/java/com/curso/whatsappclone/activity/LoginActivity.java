@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -81,8 +82,14 @@ public class LoginActivity extends AppCompatActivity {
                                     PreferenceService preferenceService = new PreferenceService(LoginActivity.this);
 
                                     preferenceService.saveUserPreferences(userId, dataSnapshot.getValue(User.class).getName());
+
+                                    openHome();
+                                    Toast.makeText(LoginActivity.this, "Sucesso ao efetuar o login", Toast.LENGTH_LONG).show();
                                 } else {
-                                    Toast.makeText(LoginActivity.this, "Falha ao salvar dados do usuário", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(LoginActivity.this, "Falha ao salvar dados do usuário, faça o login novamente", Toast.LENGTH_LONG).show();
+
+                                    auth = FirebaseConfig.getFirebaseAuth();
+                                    auth.signOut();
                                 }
 
                             }
@@ -94,9 +101,6 @@ public class LoginActivity extends AppCompatActivity {
                         };
 
                         firebase.addListenerForSingleValueEvent(valueEventListenerUser);
-
-                        openHome();
-                        Toast.makeText(LoginActivity.this, "Sucesso ao efetuar o login", Toast.LENGTH_LONG).show();
                     } else {
 
                         String exception = "Ao efetuar o login";
